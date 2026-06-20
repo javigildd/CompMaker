@@ -188,6 +188,41 @@ button { font-family: inherit; }
 .preset-grid.size-large  .card-name { font-size: 14px; }
 .preset-grid.size-large  .card-res  { font-size: 12.5px; }
 
+/* List view: single column of compact rows, no preview --------------------- */
+.preset-grid.view-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.preset-grid.view-list .list-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 8px 10px 13px;
+}
+.preset-grid.view-list .list-text {
+    flex: 1;
+    min-width: 0;
+}
+.preset-grid.view-list .card-name {
+    text-align: left;
+    font-size: 13px;
+}
+.preset-grid.view-list .list-sub {
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* In a row the menu button sits inline (not floating over a preview). */
+.preset-grid.view-list .card-menu-btn {
+    position: static;
+    opacity: 1;
+    flex-shrink: 0;
+}
+
 /* ---- Cards -------------------------------------------------------------- */
 
 .card {

@@ -81,7 +81,7 @@ window.Storage = (function () {
 
     /** App-wide defaults (not tied to a project). */
     function defaultSettings() {
-        return { cardSize: 'small' };
+        return { cardSize: 'small', viewMode: 'grid' };
     }
 
     /** Seed content shown on very first launch so the panel isn't empty. */

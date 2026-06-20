@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- **List view** toggle in the top bar — shows presets as compact rows with
+  name, resolution, ratio, and FPS (no preview). The choice is remembered.
 - Preset cards now show the **aspect-ratio format** (e.g. `16:9`, `9:16`,
   `2.39:1`) next to the FPS.
 

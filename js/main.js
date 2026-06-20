@@ -162,6 +162,13 @@
             refreshPresets();
         },
 
+        onToggleView: function () {
+            var next = Storage.getSetting('viewMode') === 'list' ? 'grid' : 'list';
+            Storage.setSetting('viewMode', next);
+            UI.setViewMode(next);
+            refreshPresets();
+        },
+
         onCreateProject: function () {
             UI.prompt({
                 title: 'New Project', label: 'Project name', value: 'New Project',
@@ -404,6 +411,7 @@
         Storage.init(userDataPath);
         UI.init(handlers);
         UI.setCardSize(Storage.getSetting('cardSize'));
+        UI.setViewMode(Storage.getSetting('viewMode'));
         setupDragAndDrop();
         refreshAll();
     }

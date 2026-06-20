@@ -15,6 +15,7 @@ window.UI = (function () {
     var handlers = {};
     var els = {}; // cached top-level element references
     var currentCardSize = 'small';
+    var currentViewMode = 'grid'; // 'grid' | 'list'
 
     // Per-size layout: max preview box (w,h) the aspect-ratio outline fits in.
     var PREVIEW_BOUNDS = {
@@ -113,6 +114,7 @@ window.UI = (function () {
         els.projectSelect = document.getElementById('projectSelect');
         els.projectMenuBtn = document.getElementById('projectMenuBtn');
         els.settingsBtn = document.getElementById('settingsBtn');
+        els.viewToggleBtn = document.getElementById('viewToggleBtn');
         els.presetGrid = document.getElementById('presetGrid');
         els.addPresetBtn = document.getElementById('addPresetBtn');
         els.useActiveBtn = document.getElementById('useActiveBtn');
@@ -122,18 +124,37 @@ window.UI = (function () {
         });
         els.projectMenuBtn.addEventListener('click', openProjectMenu);
         els.settingsBtn.addEventListener('click', function () { handlers.onSettings(); });
+        els.viewToggleBtn.addEventListener('click', function () { handlers.onToggleView(); });
         els.addPresetBtn.addEventListener('click', function () { handlers.onAddPreset(); });
         els.useActiveBtn.addEventListener('click', function () { handlers.onUseActiveComp(); });
     }
 
     // ---- rendering --------------------------------------------------------
 
-    /** Apply a card size ('small'|'medium'|'large') to the grid. */
+    /** Recompute the container class from the current view mode + card size. */
+    function applyGridClass() {
+        if (!els.presetGrid) { return; }
+        els.presetGrid.className = currentViewMode === 'list'
+            ? 'preset-grid view-list'
+            : 'preset-grid view-grid size-' + currentCardSize;
+    }
+
+    /** Apply a card size ('small'|'medium'|'large'). */
     function setCardSize(size) {
         if (CARD_SIZES.indexOf(size) === -1) { size = 'small'; }
         currentCardSize = size;
-        if (els.presetGrid) {
-            els.presetGrid.className = 'preset-grid size-' + size;
+        applyGridClass();
+    }
+
+    /** Apply a view mode ('grid'|'list') and update the toggle icon. */
+    function setViewMode(mode) {
+        currentViewMode = (mode === 'list') ? 'list' : 'grid';
+        applyGridClass();
+        if (els.viewToggleBtn) {
+            // Show the icon for the view you'd switch *to*.
+            els.viewToggleBtn.innerHTML = currentViewMode === 'list' ? gridIcon() : listIcon();
+            els.viewToggleBtn.title = currentViewMode === 'list'
+                ? 'Switch to grid view' : 'Switch to list view';
         }
     }
 
@@ -156,19 +177,8 @@ window.UI = (function () {
         });
     }
 
-    /** Build one preset card. */
-    function buildCard(preset) {
-        // Aspect-ratio preview, scaled to the stored width/height.
-        var bounds = PREVIEW_BOUNDS[currentCardSize] || PREVIEW_BOUNDS.small;
-        var size = fitPreview(preset.width, preset.height, bounds.w, bounds.h);
-        var ratioBox = el('div', { class: 'ratio-box' }, [
-            el('div', {
-                class: 'ratio-inner',
-                style: 'width:' + size.w + 'px;height:' + size.h + 'px;' +
-                       'background:' + rgbToHex(preset.backgroundColor) + ';'
-            })
-        ]);
-
+    /** The three-dot action button for a preset (shared by both views). */
+    function makeMenuBtn(preset) {
         var menuBtn = el('button', {
             class: 'card-menu-btn',
             title: 'Preset actions',
@@ -179,7 +189,37 @@ window.UI = (function () {
             e.stopPropagation();
             openCardMenu(preset, menuBtn);
         });
+        return menuBtn;
+    }
 
+    /** Wire click (create) and right-click (menu) on a card/row. */
+    function attachCardEvents(cardEl, preset, menuBtn) {
+        cardEl.addEventListener('click', function (e) {
+            handlers.onPresetClick(preset.id, e.shiftKey);
+        });
+        cardEl.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+            openCardMenu(preset, menuBtn);
+        });
+    }
+
+    /** Build one preset card (grid view) or row (list view). */
+    function buildCard(preset) {
+        return currentViewMode === 'list' ? buildListRow(preset) : buildGridCard(preset);
+    }
+
+    /** Grid card: aspect-ratio preview + centered name / resolution / ratio·fps. */
+    function buildGridCard(preset) {
+        var bounds = PREVIEW_BOUNDS[currentCardSize] || PREVIEW_BOUNDS.small;
+        var size = fitPreview(preset.width, preset.height, bounds.w, bounds.h);
+        var ratioBox = el('div', { class: 'ratio-box' }, [
+            el('div', {
+                class: 'ratio-inner',
+                style: 'width:' + size.w + 'px;height:' + size.h + 'px;' +
+                       'background:' + rgbToHex(preset.backgroundColor) + ';'
+            })
+        ]);
+        var menuBtn = makeMenuBtn(preset);
         var card = el('div', {
             class: 'card',
             dataset: { id: preset.id },
@@ -192,16 +232,29 @@ window.UI = (function () {
             el('div', { class: 'card-fps', text:
                 formatRatio(preset.width, preset.height) + '  ·  ' + fmtFps(preset.fps) })
         ]);
-
-        card.addEventListener('click', function (e) {
-            handlers.onPresetClick(preset.id, e.shiftKey);
-        });
-        // Right-click opens the same action menu.
-        card.addEventListener('contextmenu', function (e) {
-            e.preventDefault();
-            openCardMenu(preset, menuBtn);
-        });
+        attachCardEvents(card, preset, menuBtn);
         return card;
+    }
+
+    /** List row: no preview — just name and a resolution · ratio · fps line. */
+    function buildListRow(preset) {
+        var menuBtn = makeMenuBtn(preset);
+        var sub = preset.width + ' × ' + preset.height +
+            '   ·   ' + formatRatio(preset.width, preset.height) +
+            '   ·   ' + fmtFps(preset.fps);
+        var row = el('div', {
+            class: 'card list-row',
+            dataset: { id: preset.id },
+            title: 'Click to create  ·  Shift-click to name it'
+        }, [
+            el('div', { class: 'list-text' }, [
+                el('div', { class: 'card-name', text: preset.name }),
+                el('div', { class: 'list-sub', text: sub })
+            ]),
+            menuBtn
+        ]);
+        attachCardEvents(row, preset, menuBtn);
+        return row;
     }
 
     // ---- toast ------------------------------------------------------------
@@ -550,9 +603,28 @@ window.UI = (function () {
             '<circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg>';
     }
 
+    function listIcon() {
+        return '<svg viewBox="0 0 18 18" width="17" height="17" aria-hidden="true" fill="none" ' +
+            'stroke="currentColor" stroke-width="1.6" stroke-linecap="round">' +
+            '<path d="M6 4.5h8M6 9h8M6 13.5h8"/>' +
+            '<circle cx="3" cy="4.5" r="0.9" fill="currentColor" stroke="none"/>' +
+            '<circle cx="3" cy="9" r="0.9" fill="currentColor" stroke="none"/>' +
+            '<circle cx="3" cy="13.5" r="0.9" fill="currentColor" stroke="none"/></svg>';
+    }
+
+    function gridIcon() {
+        return '<svg viewBox="0 0 18 18" width="17" height="17" aria-hidden="true" fill="none" ' +
+            'stroke="currentColor" stroke-width="1.5">' +
+            '<rect x="2.5" y="2.5" width="5.5" height="5.5" rx="1.2"/>' +
+            '<rect x="10" y="2.5" width="5.5" height="5.5" rx="1.2"/>' +
+            '<rect x="2.5" y="10" width="5.5" height="5.5" rx="1.2"/>' +
+            '<rect x="10" y="10" width="5.5" height="5.5" rx="1.2"/></svg>';
+    }
+
     return {
         init: init,
         setCardSize: setCardSize,
+        setViewMode: setViewMode,
         renderProjects: renderProjects,
         renderPresets: renderPresets,
         toast: toast,
