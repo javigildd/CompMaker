@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Enables Chromium remote debugging for the panel during development.
+  With the panel open in After Effects, browse to http://localhost:8088
+  in a Chromium-based browser to open DevTools for the CompMaker panel.
+-->
+<ExtensionList>
+    <Extension Id="com.compmaker.panel">
+        <HostList>
+            <Host Name="AEFT" Port="8088"/>
+        </HostList>
+    </Extension>
+</ExtensionList>

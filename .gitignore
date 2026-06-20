@@ -1,0 +1,14 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+*.swp
+
+# Logs / temp
+*.log
+node_modules/
+
+# Local CompMaker data exports (keep the repo clean of test libraries)
+*.compmaker.json
