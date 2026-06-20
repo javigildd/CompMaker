@@ -249,6 +249,12 @@
                 version: APP_VERSION,
                 host: env.appName ? (env.appName + ' ' + env.appVersion) : 'After Effects',
                 dataPath: Storage.getDataFilePath(),
+                cardSize: Storage.getSetting('cardSize'),
+                onSetCardSize: function (size) {
+                    Storage.setSetting('cardSize', size);
+                    UI.setCardSize(size);
+                    refreshPresets();
+                },
                 onReset: function () {
                     UI.confirm({
                         title: 'Reset All Data',
@@ -395,6 +401,7 @@
 
         Storage.init(userDataPath);
         UI.init(handlers);
+        UI.setCardSize(Storage.getSetting('cardSize'));
         setupDragAndDrop();
         refreshAll();
     }

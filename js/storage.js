@@ -79,10 +79,16 @@ window.Storage = (function () {
         return p;
     }
 
+    /** App-wide defaults (not tied to a project). */
+    function defaultSettings() {
+        return { cardSize: 'small' };
+    }
+
     /** Seed content shown on very first launch so the panel isn't empty. */
     function seedData() {
         return {
             schemaVersion: SCHEMA_VERSION,
+            settings: defaultSettings(),
             projects: [{
                 id: makeId('project'),
                 name: 'My Project',
@@ -104,6 +110,14 @@ window.Storage = (function () {
         }
         if (typeof data.schemaVersion !== 'number') {
             data.schemaVersion = SCHEMA_VERSION;
+        }
+        // Merge settings so files written by older versions gain new defaults.
+        var defaults = defaultSettings();
+        data.settings = data.settings && typeof data.settings === 'object' ? data.settings : {};
+        for (var sk in defaults) {
+            if (defaults.hasOwnProperty(sk) && data.settings[sk] === undefined) {
+                data.settings[sk] = defaults[sk];
+            }
         }
         if (!(data.projects instanceof Array)) {
             data.projects = [];
@@ -204,6 +218,19 @@ window.Storage = (function () {
     /** @returns {object} The full (live) data model. */
     function getData() {
         return cache;
+    }
+
+    /** Read an app-wide setting (e.g. 'cardSize'). */
+    function getSetting(key) {
+        return cache.settings ? cache.settings[key] : undefined;
+    }
+
+    /** Write an app-wide setting and persist. */
+    function setSetting(key, value) {
+        if (!cache.settings) { cache.settings = {}; }
+        cache.settings[key] = value;
+        persist();
+        return value;
     }
 
     function getProjects() {
@@ -489,6 +516,8 @@ window.Storage = (function () {
         persist: persist,
         getDataFilePath: getDataFilePath,
         getData: getData,
+        getSetting: getSetting,
+        setSetting: setSetting,
         getProjects: getProjects,
         getProject: getProject,
         getActiveProjectId: getActiveProjectId,

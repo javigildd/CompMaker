@@ -14,6 +14,15 @@ window.UI = (function () {
 
     var handlers = {};
     var els = {}; // cached top-level element references
+    var currentCardSize = 'small';
+
+    // Per-size layout: max preview box (w,h) the aspect-ratio outline fits in.
+    var PREVIEW_BOUNDS = {
+        small:  { w: 78,  h: 36 },
+        medium: { w: 104, h: 50 },
+        large:  { w: 130, h: 64 }
+    };
+    var CARD_SIZES = ['small', 'medium', 'large'];
 
     // ---- tiny DOM helpers -------------------------------------------------
 
@@ -111,6 +120,15 @@ window.UI = (function () {
 
     // ---- rendering --------------------------------------------------------
 
+    /** Apply a card size ('small'|'medium'|'large') to the grid. */
+    function setCardSize(size) {
+        if (CARD_SIZES.indexOf(size) === -1) { size = 'small'; }
+        currentCardSize = size;
+        if (els.presetGrid) {
+            els.presetGrid.className = 'preset-grid size-' + size;
+        }
+    }
+
     function renderProjects(projects, activeId) {
         clear(els.projectSelect);
         projects.forEach(function (p) {
@@ -140,7 +158,8 @@ window.UI = (function () {
     /** Build one preset card. */
     function buildCard(preset) {
         // Aspect-ratio preview, scaled to the stored width/height.
-        var size = fitPreview(preset.width, preset.height, 116, 66);
+        var bounds = PREVIEW_BOUNDS[currentCardSize] || PREVIEW_BOUNDS.small;
+        var size = fitPreview(preset.width, preset.height, bounds.w, bounds.h);
         var ratioBox = el('div', { class: 'ratio-box' }, [
             el('div', {
                 class: 'ratio-inner',
@@ -454,11 +473,36 @@ window.UI = (function () {
         });
     }
 
+    /** Build the Small / Medium / Large segmented control for card size. */
+    function buildCardSizeControl(current, onChange) {
+        var group = el('div', { class: 'segmented' });
+        var buttons = {};
+        CARD_SIZES.forEach(function (size) {
+            var label = size.charAt(0).toUpperCase() + size.slice(1);
+            var b = el('button', {
+                class: 'segmented-btn' + (size === current ? ' active' : ''),
+                text: label
+            });
+            b.addEventListener('click', function () {
+                CARD_SIZES.forEach(function (s) { buttons[s].classList.remove('active'); });
+                b.classList.add('active');
+                onChange(size);
+            });
+            buttons[size] = b;
+            group.appendChild(b);
+        });
+        return group;
+    }
+
     /** Settings / about modal. */
     function openSettings(cfg) {
         var modal = openModal({
             title: 'Settings',
             body: [
+                el('div', { class: 'settings-row' }, [
+                    el('span', { class: 'settings-key', text: 'Card size' }),
+                    buildCardSizeControl(cfg.cardSize || 'small', cfg.onSetCardSize)
+                ]),
                 el('div', { class: 'settings-row' }, [
                     el('span', { class: 'settings-key', text: 'Version' }),
                     el('span', { class: 'settings-val', text: cfg.version })
@@ -493,6 +537,7 @@ window.UI = (function () {
 
     return {
         init: init,
+        setCardSize: setCardSize,
         renderProjects: renderProjects,
         renderPresets: renderPresets,
         toast: toast,

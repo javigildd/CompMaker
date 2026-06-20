@@ -26,6 +26,12 @@
     --accent-hover:  #7d70ff;
     --accent-soft:   rgba(109, 94, 252, 0.16);
 
+    /* Light blue — preset outlines + add button */
+    --blue:          #5aa9ff;
+    --blue-bright:   #82c0ff;
+    --blue-outline:  #7cc0ff;
+    --blue-soft:     rgba(90, 169, 255, 0.16);
+
     /* Feedback */
     --danger:        #f0556b;
     --danger-hover:  #ff6379;
@@ -131,6 +137,26 @@ button { font-family: inherit; }
 .icon-btn:hover { background: var(--surface-hover); color: var(--text); border-color: var(--border); }
 .icon-btn:active { transform: translateY(1px); }
 
+/* Light-blue "add preset" action */
+.icon-btn-accent {
+    color: var(--blue);
+    background: var(--blue-soft);
+    border-color: rgba(90, 169, 255, 0.28);
+}
+.icon-btn-accent:hover {
+    color: var(--blue-bright);
+    background: rgba(90, 169, 255, 0.24);
+    border-color: rgba(90, 169, 255, 0.45);
+}
+
+.topbar-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--border);
+    margin: 0 3px;
+    flex-shrink: 0;
+}
+
 /* ---- Content ------------------------------------------------------------ */
 
 .content {
@@ -141,9 +167,26 @@ button { font-family: inherit; }
 
 .preset-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
 }
+
+/* Card size variants (chosen in Settings) ------------------------------- */
+.preset-grid.size-small  { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));  gap: 8px; }
+.preset-grid.size-medium { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.preset-grid.size-large  { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+
+.preset-grid.size-small  .card { padding: 9px 9px 10px; }
+.preset-grid.size-small  .ratio-box { height: 46px; margin-bottom: 8px; }
+.preset-grid.size-small  .card-name { font-size: 12px; padding-right: 16px; }
+.preset-grid.size-small  .card-res  { font-size: 11px; margin-top: 2px; }
+.preset-grid.size-small  .card-fps  { font-size: 10px; }
+
+.preset-grid.size-medium .ratio-box { height: 62px; }
+
+.preset-grid.size-large  .ratio-box { height: 84px; margin-bottom: 13px; }
+.preset-grid.size-large  .card-name { font-size: 14px; }
+.preset-grid.size-large  .card-res  { font-size: 12.5px; }
 
 /* ---- Cards -------------------------------------------------------------- */
 
@@ -179,12 +222,12 @@ button { font-family: inherit; }
     overflow: hidden;
 }
 .ratio-inner {
-    border: 1.5px solid rgba(255, 255, 255, 0.55);
+    border: 1.5px solid var(--blue-outline);
     border-radius: 3px;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4) inset;
     transition: border-color 0.16s var(--ease);
 }
-.card:hover .ratio-inner { border-color: var(--accent); }
+.card:hover .ratio-inner { border-color: var(--blue-bright); }
 
 .card-name {
     font-size: 13px;
@@ -242,16 +285,7 @@ button { font-family: inherit; }
 .empty-title { font-size: 14px; font-weight: 600; color: var(--text-dim); }
 .empty-sub { margin-top: 5px; font-size: 12px; max-width: 220px; line-height: 1.5; }
 
-/* ---- Bottom bar --------------------------------------------------------- */
-
-.bottombar {
-    display: flex;
-    gap: 8px;
-    padding: 12px 14px;
-    background: var(--bg-elev);
-    border-top: 1px solid var(--border);
-    flex-shrink: 0;
-}
+/* ---- Buttons ------------------------------------------------------------ */
 
 .btn {
     display: inline-flex;
@@ -272,7 +306,6 @@ button { font-family: inherit; }
 .btn svg { stroke: currentColor; }
 
 .btn-primary {
-    flex: 1;
     background: var(--accent);
     color: #fff;
     box-shadow: 0 2px 12px rgba(109, 94, 252, 0.35);
@@ -417,6 +450,32 @@ button { font-family: inherit; }
 }
 .form-error:empty { display: none; }
 
+/* Segmented control (Small / Medium / Large) */
+.segmented {
+    display: inline-flex;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px;
+    gap: 2px;
+}
+.segmented-btn {
+    background: transparent;
+    color: var(--text-dim);
+    border: none;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.14s var(--ease), color 0.14s var(--ease);
+}
+.segmented-btn:hover { color: var(--text); }
+.segmented-btn.active {
+    background: var(--blue-soft);
+    color: var(--blue-bright);
+}
+
 /* Settings rows */
 .settings-row {
     display: flex;
@@ -441,7 +500,7 @@ button { font-family: inherit; }
 
 #toastRoot {
     position: fixed;
-    bottom: 70px;
+    bottom: 22px;
     left: 0;
     right: 0;
     z-index: 1100;

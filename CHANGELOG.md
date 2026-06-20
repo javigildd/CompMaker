@@ -3,6 +3,16 @@
 All notable changes to CompMaker are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+- **Smaller preset cards** with a new **Card size** setting (Small / Medium /
+  Large) in Settings; defaults to Small and persists between sessions.
+- Preset aspect-ratio **outlines are now light blue**.
+- **Add Preset** moved to the top bar as a compact light-blue **+** icon;
+  **Use Active Comp** is now an import-style icon button. The bottom bar is gone.
+- Settings icon is now a **cogwheel** (was a sun-like glyph).
+
 ## [1.0.0] — 2026-06-20
 
 ### Added
