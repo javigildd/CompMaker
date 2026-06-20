@@ -99,11 +99,8 @@ window.UI = (function () {
         handlers = h || {};
         els.projectSelect = document.getElementById('projectSelect');
         els.projectMenuBtn = document.getElementById('projectMenuBtn');
-        els.importBtn = document.getElementById('importBtn');
-        els.exportBtn = document.getElementById('exportBtn');
         els.settingsBtn = document.getElementById('settingsBtn');
         els.presetGrid = document.getElementById('presetGrid');
-        els.emptyState = document.getElementById('emptyState');
         els.addPresetBtn = document.getElementById('addPresetBtn');
         els.useActiveBtn = document.getElementById('useActiveBtn');
 
@@ -111,8 +108,6 @@ window.UI = (function () {
             handlers.onSwitchProject(els.projectSelect.value);
         });
         els.projectMenuBtn.addEventListener('click', openProjectMenu);
-        els.importBtn.addEventListener('click', function () { handlers.onImport(); });
-        els.exportBtn.addEventListener('click', function () { handlers.onExportProject(); });
         els.settingsBtn.addEventListener('click', function () { handlers.onSettings(); });
         els.addPresetBtn.addEventListener('click', function () { handlers.onAddPreset(); });
         els.useActiveBtn.addEventListener('click', function () { handlers.onUseActiveComp(); });
@@ -143,14 +138,7 @@ window.UI = (function () {
 
     function renderPresets(presets) {
         clear(els.presetGrid);
-        if (!presets || !presets.length) {
-            els.emptyState.hidden = false;
-            els.presetGrid.hidden = true;
-            return;
-        }
-        els.emptyState.hidden = true;
-        els.presetGrid.hidden = false;
-        presets.forEach(function (preset) {
+        (presets || []).forEach(function (preset) {
             els.presetGrid.appendChild(buildCard(preset));
         });
     }
@@ -496,13 +484,30 @@ window.UI = (function () {
 
     /** Settings / about modal. */
     function openSettings(cfg) {
-        var modal = openModal({
+        var modal;
+
+        // Library actions live here now (import / export of the active project).
+        var importBtn = button('Import…', 'btn-ghost', function () {
+            modal.close();
+            cfg.onImport();
+        });
+        var exportBtn = button('Export…', 'btn-ghost', function () {
+            modal.close();
+            cfg.onExport();
+        });
+        var libraryRow = el('div', { class: 'settings-row' }, [
+            el('span', { class: 'settings-key', text: 'Library' }),
+            el('div', { class: 'settings-actions' }, [importBtn, exportBtn])
+        ]);
+
+        modal = openModal({
             title: 'Settings',
             body: [
                 el('div', { class: 'settings-row' }, [
                     el('span', { class: 'settings-key', text: 'Card size' }),
                     buildCardSizeControl(cfg.cardSize || 'small', cfg.onSetCardSize)
                 ]),
+                libraryRow,
                 el('div', { class: 'settings-row' }, [
                     el('span', { class: 'settings-key', text: 'Version' }),
                     el('span', { class: 'settings-val', text: cfg.version })

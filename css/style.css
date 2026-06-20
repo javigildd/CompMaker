@@ -178,7 +178,7 @@ button { font-family: inherit; }
 
 .preset-grid.size-small  .card { padding: 9px 9px 10px; }
 .preset-grid.size-small  .ratio-box { height: 46px; margin-bottom: 8px; }
-.preset-grid.size-small  .card-name { font-size: 12px; padding-right: 16px; }
+.preset-grid.size-small  .card-name { font-size: 12px; }
 .preset-grid.size-small  .card-res  { font-size: 11px; margin-top: 2px; }
 .preset-grid.size-small  .card-fps  { font-size: 10px; }
 
@@ -214,17 +214,11 @@ button { font-family: inherit; }
     justify-content: center;
     height: 72px;
     margin-bottom: 12px;
-    border-radius: var(--radius-sm);
-    background:
-        linear-gradient(var(--bg) 0 0) padding-box,
-        repeating-conic-gradient(#1d1d24 0% 25%, #17171c 0% 50%) 0 / 14px 14px;
-    border: 1px solid var(--border);
     overflow: hidden;
 }
 .ratio-inner {
     border: 1.5px solid var(--blue-outline);
     border-radius: 3px;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4) inset;
     transition: border-color 0.16s var(--ease);
 }
 .card:hover .ratio-inner { border-color: var(--blue-bright); }
@@ -236,17 +230,19 @@ button { font-family: inherit; }
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: 18px; /* room for the menu button */
+    text-align: center;
 }
 .card-res {
     margin-top: 3px;
     font-size: 12px;
     color: var(--text-dim);
+    text-align: center;
 }
 .card-fps {
     margin-top: 1px;
     font-size: 11px;
     color: var(--text-faint);
+    text-align: center;
 }
 
 .card-menu-btn {
@@ -270,20 +266,6 @@ button { font-family: inherit; }
 .card:hover .card-menu-btn { opacity: 1; }
 .card-menu-btn:hover { background: var(--surface-hover); color: var(--text); }
 .card-menu-btn svg { fill: currentColor; }
-
-/* ---- Empty state -------------------------------------------------------- */
-
-.empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 56px 24px;
-    color: var(--text-faint);
-}
-.empty-icon { color: var(--border-strong); margin-bottom: 14px; }
-.empty-title { font-size: 14px; font-weight: 600; color: var(--text-dim); }
-.empty-sub { margin-top: 5px; font-size: 12px; max-width: 220px; line-height: 1.5; }
 
 /* ---- Buttons ------------------------------------------------------------ */
 
@@ -486,6 +468,8 @@ button { font-family: inherit; }
     font-size: 13px;
 }
 .settings-row.col { flex-direction: column; gap: 5px; }
+.settings-actions { display: flex; gap: 6px; }
+.settings-actions .btn { padding: 6px 12px; }
 .settings-key { color: var(--text-dim); }
 .settings-val { color: var(--text); font-weight: 600; }
 .settings-path {

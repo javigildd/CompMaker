@@ -255,6 +255,8 @@
                     UI.setCardSize(size);
                     refreshPresets();
                 },
+                onImport: function () { handlers.onImport(); },
+                onExport: function () { handlers.onExportProject(); },
                 onReset: function () {
                     UI.confirm({
                         title: 'Reset All Data',
