@@ -413,18 +413,6 @@ button { font-family: inherit; }
 .inp:hover { border-color: var(--border-strong); }
 .inp:focus { outline: none; border-color: var(--accent); background: var(--bg-elev); }
 
-.inp-color {
-    width: 100%;
-    height: 38px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 4px;
-    cursor: pointer;
-}
-.inp-color::-webkit-color-swatch-wrapper { padding: 0; }
-.inp-color::-webkit-color-swatch { border: none; border-radius: 5px; }
-
 .form-error {
     color: var(--danger);
     font-size: 12px;

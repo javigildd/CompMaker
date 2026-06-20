@@ -5,6 +5,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- Preset cards now show the **aspect-ratio format** (e.g. `16:9`, `9:16`,
+  `2.39:1`) next to the FPS.
+
+### Removed
+- Background-color picker in the preset form (new comps default to black).
+
 ### Changed
 - **Smaller preset cards** with a new **Card size** setting (Small / Medium /
   Large) in Settings; defaults to Small and persists between sessions.

@@ -68,13 +68,6 @@ window.UI = (function () {
         return '#' + h(rgb[0]) + h(rgb[1]) + h(rgb[2]);
     }
 
-    function hexToRgb(hex) {
-        var m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
-        if (!m) { return [0, 0, 0]; }
-        var i = parseInt(m[1], 16);
-        return [(i >> 16) & 255, (i >> 8) & 255, i & 255];
-    }
-
     // ---- formatting -------------------------------------------------------
 
     /** "29.97 fps", "30 fps" — trims pointless trailing zeros. */
@@ -82,6 +75,26 @@ window.UI = (function () {
         var n = Number(fps);
         var s = (Math.round(n * 100) / 100).toString();
         return s + ' fps';
+    }
+
+    /** Human aspect ratio: "16:9", "9:16", or "2.39:1" for awkward ratios. */
+    function formatRatio(w, h) {
+        w = Math.round(w);
+        h = Math.round(h);
+        if (!(w > 0 && h > 0)) { return ''; }
+        function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+        var g = gcd(w, h);
+        var rw = w / g;
+        var rh = h / g;
+        // Keep clean, recognisable ratios (16:9, 21:9, 4:3…); anything that
+        // reduces to large terms reads better as a decimal ratio.
+        if (rw <= 21 && rh <= 21) {
+            return rw + ':' + rh;
+        }
+        // Reduced fraction is unwieldy — show a decimal ratio against 1.
+        return w >= h
+            ? (Math.round((w / h) * 100) / 100) + ':1'
+            : '1:' + (Math.round((h / w) * 100) / 100);
     }
 
     /** Compute the inner preview box size that fits a w:h ratio in a frame. */
@@ -176,7 +189,8 @@ window.UI = (function () {
             ratioBox,
             el('div', { class: 'card-name', text: preset.name }),
             el('div', { class: 'card-res', text: preset.width + ' × ' + preset.height }),
-            el('div', { class: 'card-fps', text: fmtFps(preset.fps) })
+            el('div', { class: 'card-fps', text:
+                formatRatio(preset.width, preset.height) + '  ·  ' + fmtFps(preset.fps) })
         ]);
 
         card.addEventListener('click', function (e) {
@@ -348,8 +362,6 @@ window.UI = (function () {
         var heightInput = el('input', { class: 'inp', type: 'number', min: '1', step: '1', value: p.height || 1080 });
         var durInput = el('input', { class: 'inp', type: 'number', min: '0.1', step: '0.1', value: p.duration || 10 });
         var fpsInput = el('input', { class: 'inp', type: 'number', min: '1', step: '0.001', value: p.fps || 30 });
-        var colorHex = rgbToHex(p.backgroundColor || [0, 0, 0]);
-        var colorInput = el('input', { class: 'inp-color', type: 'color', value: colorHex });
 
         var error = el('div', { class: 'form-error', text: '' });
 
@@ -363,7 +375,6 @@ window.UI = (function () {
         var body = [
             field('Name', nameInput),
             grid,
-            field('Background Color', colorInput),
             error
         ];
 
@@ -375,8 +386,7 @@ window.UI = (function () {
                 width: parseInt(widthInput.value, 10),
                 height: parseInt(heightInput.value, 10),
                 duration: parseFloat(durInput.value),
-                fps: parseFloat(fpsInput.value),
-                backgroundColor: hexToRgb(colorInput.value)
+                fps: parseFloat(fpsInput.value)
             };
             if (!data.name) { error.textContent = 'Please enter a name.'; return; }
             if (!(data.width > 0 && data.height > 0)) { error.textContent = 'Width and height must be positive.'; return; }
